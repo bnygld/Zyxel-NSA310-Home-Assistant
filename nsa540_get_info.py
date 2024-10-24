@@ -6,11 +6,22 @@ import time
 import json 
 import sys
 
+if len(sys.argv) < 5:
+    print('{}')
+    sys.exit()
+
 ses = requests.session()
 try:
-    response_login = ses.get('http://'+str(sys.argv[1])+'/r51209,/adv,/cgi-bin/weblogin.cgi?username='+str(sys.argv[2])+'&password='+str(sys.argv[3]))
-    parse_login= response_login.text.split(':')[1].replace('}', '').replace(')', '')
-    
+    form_data = {
+        "username": str(sys.argv[2]),
+        "password": str(sys.argv[3]),
+    }
+    response_login = ses.post(
+        f"http://{str(sys.argv[1])}/{str(sys.argv[4])},/adv,/cgi-bin/weblogin.cgi",
+        data=form_data,
+    )
+    parse_login = response_login.text.split(":")[1].replace("}", "").replace(")", "")
+
     if parse_login == '9':
         response = ses.get('http://'+str(sys.argv[1])+'/cmd,/ck6fup6/system_main/show_sysinfo?_dc=1')
         
@@ -32,6 +43,6 @@ try:
         'Content-Type': "application/x-www-form-urlencoded"
         }
     payload_data = "perform=logout"
-    response_logout = ses.post('http://'+str(sys.argv[1])+'/r51209,/adv,/cgi-bin/setuser.cgi', data=payload_data, headers=headers)
-except:
+    response_logout = ses.post(f'http://{str(sys.argv[1])}/{str(sys.argv[4])},/adv,/cgi-bin/setuser.cgi', data=payload_data, headers=headers)
+except Exception as e:
     print('{}')
